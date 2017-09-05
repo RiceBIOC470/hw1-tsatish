@@ -68,13 +68,18 @@ for x = 1:length(start_locations)
             potential_stop_points(end+1) = end_locations(y);
         end
     end
-    %Select stop codon immediately after selected start codon
-    actual_stop_point = min(potential_stop_points);
-    %Getting the ORF length:
-    %Add 2 because the strfind gets the location of the first letter, so we
-    %would miss the last two bases of the stop codon
-    this_ORF_length = actual_stop_point - start_locations(x) + 2;
-    ORF_lengths(end+1) = this_ORF_length;
+    if ~isempty(potential_stop_points)
+        %Select stop codon immediately after selected start codon
+        actual_stop_point = min(potential_stop_points);
+        %Getting the ORF length:
+        %Add 2 because the strfind gets the location of the first letter, so we
+        %would miss the last two bases of the stop codon
+        this_ORF_length = actual_stop_point - start_locations(x) + 2;
+        %ORF lengths have to be multiples of 3
+        if mod(this_ORF_length, 3) == 0
+            ORF_lengths(end+1) = this_ORF_length;
+        end
+    end
 end
 
 disp(max(ORF_lengths));
@@ -121,7 +126,10 @@ for temp = 1:1000
             %Add 2 because the strfind gets the location of the first letter, so we
             %would miss the last two bases of the stop codon
             this_ORF_length = actual_stop_point - start_locations(x) + 2;
-            ORF_lengths(end+1) = this_ORF_length;
+            %ORF lengths have to be multiples of 3
+            if mod(this_ORF_length, 3) == 0
+                ORF_lengths(end+1) = this_ORF_length;
+            end
         end        
     end
     
@@ -179,10 +187,13 @@ for current_N = 1:max_length
                 %Add 2 because the strfind gets the location of the first letter, so we
                 %would miss the last two bases of the stop codon
                 this_ORF_length = actual_stop_point - start_locations(x) + 2;
-                ORF_lengths(end+1) = this_ORF_length;
+                %ORF lengths have to be multiples of 3
+                if mod(this_ORF_length, 3) == 0
+                    ORF_lengths(end+1) = this_ORF_length;
+                end
             end        
         end
-
+        
         if max(ORF_lengths) > 50
             count = count+1;
         end
@@ -251,10 +262,10 @@ end
 %Questions: are you supposed to be averaging the Cp values as I am? Are you
 %supposed to display the normalization gene and condition 1 on the map?
 
-heat_map = zeros(6,4);
+heat_map = zeros(6,3);
 CpN0 = (plate(1,10) + plate(1,11) + plate(1,12))/3;
 y_count = 1;
-for y = 1:3:11
+for y = 1:3:9
     Cp0 = (plate(1,y) + plate(1,y+1) + plate(1,y+2))/3;
     for x = 1:6
         CpX = (plate(x,y) + plate(x,y+1) + plate(x,y+2))/3;
@@ -264,8 +275,11 @@ for y = 1:3:11
     end
     y_count = y_count+1;
 end
-        
-heatmap(heat_map);
+
+
+x_labels = ["Gene 1", "Gene 2", "Gene 3"];
+y_labels = ["Condition 1", "Condition 2", "Condition 3", "Condition 4", "Condition 5", "Condition 6"];
+heatmap(x_labels, y_labels, heat_map);
 
 
 %% Challenge problems that extend the above (optional)
